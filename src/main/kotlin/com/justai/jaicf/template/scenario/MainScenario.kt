@@ -14,7 +14,7 @@ object MainScenarioTest: Scenario(
     dependencies = listOf(GameScenario)
 ) {
     init {
-        state("/main") {
+        state("main") {
             activators {
                 regex("/start")
                 event(AliceEvent.START)
@@ -28,9 +28,10 @@ object MainScenarioTest: Scenario(
                 reactions.buttons("да", "нет")
             }
 
-            state("/main/yes") {
+            state("yes") {
                 activators {
                     regex("да")
+                    regex("не *")
                     intent(AliceIntent.CONFIRM)
                 }
 
@@ -40,7 +41,7 @@ object MainScenarioTest: Scenario(
             }
 
 
-            state("/main/no") {
+            state("no") {
                 activators {
                     regex("нет")
                     intent(AliceIntent.REJECT)
@@ -53,11 +54,11 @@ object MainScenarioTest: Scenario(
             }
 
             fallback {
-                reactions.say("Я понимаю, что чего-то не понимаю. Скажи лучше, да или нет?")
+                reactions.say("Я понимаю, что чего-то не понимаю. Скажи лучше, играем ли: да или нет?")
             }
         }
 
-        state("/end") {
+        state("end") {
             action {
                 reactions.say("Кажется, мы всё с вами разыграли!\nПока!")
                 reactions.telegram?.sendPhoto("https://meduza.io/image/attachments/images/005/634/857/large/7yf6EVsUAAsPGObrATeTHQ.jpg")
