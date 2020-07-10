@@ -23,9 +23,9 @@ object MainScenarioTest: Scenario(
             action {
                 reactions.say("Привет! Добро пожаловать в Норвежско-грузинский клуб русских песен!\n")
                 reactions.say("Собрались однажды русский, профессор лингвистики, норвежец и грузин русские песни петь. Каждый на свой лад.\n")
-                reactions.say("Предлагаю угадать исполнителя по некоторым строчкам, спетым на этом собрании.\n")
+                reactions.say("Вы - почетный гость на этом событии. И ваша задача - угадать исполнителя по некоторым строчкам, спетым на этом собрании.\n")
                 reactions.say("Играем?")
-                reactions.buttons("да", "нет")
+                reactions.buttons("Да", "Нет")
             }
 
             state("yes") {
@@ -53,21 +53,30 @@ object MainScenarioTest: Scenario(
                 }
             }
 
-            fallback {
+            fallback("f3") {
                 reactions.say("Я понимаю, что чего-то не понимаю. Скажи лучше, играем ли: да или нет?")
             }
         }
 
-        state("end") {
+        state("/end") {
+            activators {
+                regex("хватит")
+                regex("стоп")
+            }
+
             action {
-                reactions.say("Кажется, мы всё с вами разыграли!\nПока!")
+                if (context.client["score"] != null)
+                    reactions.say("Вы отгадали " + context.client["score"].toString()
+                        + " из " + GameScenario.game.tasksArray.size.toString() + " песен.")
+                reactions.say("Интернациональная команда надеется на ваше скорое возвращение.")
+                reactions.say("До свидания!\n")
                 reactions.telegram?.sendPhoto("https://meduza.io/image/attachments/images/005/634/857/large/7yf6EVsUAAsPGObrATeTHQ.jpg")
                 reactions.alice?.endSession()
             }
         }
 
 
-        fallback {
+        fallback("f2") {
             reactions.telegram?.say("Я умею играть только в игру Норвежско-грузинский клуб русских песен. Заново сыграть можно отправив мне команду /start.")
         }
     }

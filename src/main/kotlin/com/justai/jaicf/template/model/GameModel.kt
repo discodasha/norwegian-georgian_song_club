@@ -58,7 +58,7 @@ class GameModel() {
 
 fun getQuestion(task: Task?): String {
     if (task != null)
-        return task.text + "\n"
+        return "\n\n" +task.text + "\n\n"
     return ""
 }
 

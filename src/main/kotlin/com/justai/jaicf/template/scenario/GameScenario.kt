@@ -12,127 +12,110 @@ import com.justai.jaicf.template.model.getQuestion
 
 object GameScenario: Scenario() {
 
-    private val game = GameModel()
+    val game = GameModel()
     val INIT_STATE = "/game/init"
     val GO_ON_STATE = "/game/go_on"
     val ASK_STATE = "/game/ask"
+    val goOnString: String = "Идём дальше!\n"
 
     init {
         state("/game") {
             action {
                 context.client["score"] = 0
-                reactions.run{
+                reactions.run {
                     sayRandom("Начинаем играть!\n", "Погнали!\n", "Стартуем!\n")
                     go(INIT_STATE)
                 }
-//                reactions.sayRandom("Начинаем играть!\n", "Погнали!\n", "Стартуем!\n")
-//                reactions.go(INIT_STATE)
             }
-        }
 
-        state("/game/init") {
-            action {
-                val task: Task? = game.getTask()
-                if (task == null) {
-                    reactions.go("end")
-                } else {
-                    val hint = Hint(task)
-                    context.client["stage"] = 0
-                    context.client["hint"] = hint
-                    reactions.say(getQuestion(task))
-                    reactions.go(ASK_STATE)
+
+            state("/game/init") {
+                action {
+                    val task: Task? = game.getTask()
+                    if (task == null) {
+                        reactions.say("Кажется, мы всё с вами разыграли! Собрание закончилось, и песни тоже.")
+                        reactions.go("/end")
+                    } else {
+                        val hint = Hint(task)
+                        context.client["stage"] = 0
+                        context.client["hint"] = hint
+                        reactions.say(getQuestion(task))
+                        reactions.go(ASK_STATE)
+                    }
+
                 }
-
             }
-        }
 
-        state("/game/ask") {
-            action {
-                val index: Int = context.client["stage"] as Int
-                val hint = context.client["hint"] as Hint
-                if (index == hint.candidates.size) {
-                    reactions.go(INIT_STATE)
+            state("/game/ask") {
+                action {
+                    val index: Int = context.client["stage"] as Int
+                    val hint = context.client["hint"] as Hint
+                    if (index == hint.candidates.size) {
+                        reactions.go(INIT_STATE)
+                    }
+                    reactions.say("Это " + hint.candidates[index] + "?")
+                    reactions.buttons("Да", "Нет")
                 }
-                reactions.say("Это " + hint.candidates[index] + "?")
             }
-        }
 
-        state("/game/hint_no") {
-            activators {
-                regex("нет")
-                intent(AliceIntent.REJECT)
+            state("/game/hint_no") {
+                activators {
+                    regex("нет")
+                    intent(AliceIntent.REJECT)
+                }
+                action {
+                    val stage: Int = context.client["stage"] as Int
+                    val hint = context.client["hint"] as Hint
+                    if (hint.rightIndex == stage) {
+                        reactions.run {
+                            sayRandom("А вот и нет! Это всё-таки " + hint.author + "!\n")
+                            say(goOnString)
+                            go(INIT_STATE)
+                        }
+                    } else {
+                        reactions.go(GO_ON_STATE)
+                    }
+                }
             }
-            action {
-                val stage: Int = context.client["stage"] as Int
-                val hint = context.client["hint"] as Hint
-                if (hint.rightIndex == stage) {
+
+
+            state("/game/hint_yes") {
+                activators {
+                    regex("да")
+                    intent(AliceIntent.CONFIRM)
+                }
+                action {
+                    val stage: Int = context.client["stage"] as Int
+                    val hint = context.client["hint"] as Hint
+                    if (hint.rightIndex == stage) {
+                        addScore(context)
+                        reactions.say("Правильно! Если слушать оригинал, то там поётся:\n\"" + hint.original + "\"\n\n")
+                    } else {
+                        reactions.sayRandom("А вот и нет! Это " + hint.author + "!\n")
+                    }
                     reactions.run {
-                        sayRandom("А вот и нет! Это всё-таки" + hint.author + "!\n")
+                        //say(goOnString)
                         go(INIT_STATE)
                     }
-                } else {
-                    reactions.go(GO_ON_STATE)
                 }
             }
-        }
 
-
-        state("/game/hint_yes") {
-            activators {
-                regex("да")
-                intent(AliceIntent.CONFIRM)
-            }
-            action {
-                val stage: Int = context.client["stage"] as Int
-                val hint = context.client["hint"] as Hint
-                if (hint.rightIndex == stage) {
-                    addScore(context)
+            state("/game/go_on") {
+                action {
+                    addStage(context)
                     reactions.run {
-                        say("Правильно! Если слушать оригинал, то там поётся \"" + hint.original + "\"\n")
-                        say("Идём дальше!")
-                        go(INIT_STATE)
+                        say(goOnString)
+                        go(ASK_STATE)
                     }
-//                    reactions.say("Правильно! Если слушать оригинал, то там поётся \"" + hint.original + "\"")
-//                    reactions.say("Идём дальше!")
-//                    reactions.go(INIT_STATE)
-                } else {
-                    reactions.run {
-                        sayRandom("А вот и нет! Это " + hint.author)
-                        say("Идём дальше!")
-                        go(INIT_STATE)
-                    }
-//                    reactions.sayRandom("А вот и нет! Это " + hint.author)
-//                    reactions.say("Идём дальше!")
-//                    reactions.go(INIT_STATE)
                 }
             }
-        }
 
-        state("/game/go_on") {
-            action {
-                addStage(context)
+            fallback("f1") {
                 reactions.run {
-                    say("Идём дальше!")
-                    go(ASK_STATE)
+                    say("Я понимаю, что я нудная, но скажи ДА или НЕТ.")
+                    buttons("Да", "Нет")
+                    go("/game/ask")
                 }
-//                reactions.say("Идём дальше!")
-//                reactions.go(ASK_STATE)
-            }
-        }
-
-//        fallback {
-//            reactions.say("Я понимаю, что я нудная, но скажи ДА или НЕТ.")
-//            reactions.go("/game/ask")
-//        }
-
-        state("garbage") {
-            activators {
-                catchAll()
-            }
-
-            action {
-                reactions.say("Я понимаю, что я нудная, но скажи ДА или НЕТ.")
-                reactions.go("/game/ask")
             }
         }
     }
