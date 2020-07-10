@@ -12,7 +12,7 @@ val slf4j = "1.7.30"
 val ktor = "1.3.2"
 
 application {
-    mainClassName = "com.justai.jaicf.template.ServerKt"
+    mainClassName = "com.justai.jaicf.template.AliceKt"
 }
 
 repositories {

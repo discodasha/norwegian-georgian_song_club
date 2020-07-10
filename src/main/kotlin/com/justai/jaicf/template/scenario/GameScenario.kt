@@ -48,7 +48,7 @@ object GameScenario: Scenario() {
                 if (index == hint.candidates.size) {
                     reactions.go(INIT_STATE)
                 }
-                reactions.say("Это " + hint.candidates.get(index) + "?")
+                reactions.say("Это " + hint.candidates[index] + "?")
             }
         }
 
