@@ -11,20 +11,27 @@ class Task(val text:String,
            val author: String, val
            additional: ArrayList<String>)
 
-
 fun loadTasks(): ArrayList<Task> {
-    val jsonArray: String = File("/home/dasha/jaicf/jaicf-template/src/main/kotlin/com/justai/jaicf/template/resources/tasks.json").readText(Charsets.UTF_8)
-    val tasksArray = arrayListOf<Task>()
-    JsonReader(StringReader(jsonArray)).use {
-            reader -> reader.beginArray {
-                while (reader.hasNext()) {
-                    val product = Klaxon().parse<Task>(reader)
-                    tasksArray.add(product!!)
+    val jsonArray: String = Task::class.java.getResourceAsStream("/tasks.json")
+        .bufferedReader()
+        .use { it.readText() }
+
+    val resArray = arrayListOf<Task>()
+    val klaxon = Klaxon()
+    JsonReader(StringReader(jsonArray)).use { reader ->
+        reader.beginArray {
+            while (reader.hasNext()) {
+                val person = klaxon.parse<Task>(reader)
+                if (person != null) {
+                    resArray.add(person)
                 }
+            }
         }
     }
-    return tasksArray
+    return resArray
 }
+
+
 class GameModel() {
     var usedTasksIndexes: ArrayList<Int> = ArrayList()
     var tasksArray: ArrayList<Task> = loadTasks()

@@ -23,7 +23,8 @@ object MainScenarioTest: Scenario(
             action {
                 reactions.say("Привет! Добро пожаловать в Норвежско-грузинский клуб русских песен!\n")
                 reactions.say("Собрались однажды русский, профессор лингвистики, норвежец и грузин русские песни петь. Каждый на свой лад.\n")
-                reactions.say("Вы - почетный гость на этом событии. И ваша задача - угадать исполнителя по некоторым строчкам, спетым на этом собрании.\n")
+                reactions.alice?.say(text="Вы - почетный гость на этом событии. И ваша задача - угадать исполнителя по некоторым строчкам, спетым на этом собрании.\n",
+                            tts="Вы - почётный гость.. И ваша задача - угадать исполнителя по стр+очкам, спетым на этом собрании.")
                 reactions.say("Играем?")
                 reactions.buttons("Да", "Нет")
             }
@@ -31,7 +32,7 @@ object MainScenarioTest: Scenario(
             state("yes") {
                 activators {
                     regex("да")
-                    regex("не *")
+                    regex("конечно|давай|погнали|поехали")
                     intent(AliceIntent.CONFIRM)
                 }
 
@@ -44,6 +45,7 @@ object MainScenarioTest: Scenario(
             state("no") {
                 activators {
                     regex("нет")
+                    regex("не *")
                     intent(AliceIntent.REJECT)
                 }
 
@@ -70,7 +72,7 @@ object MainScenarioTest: Scenario(
                         + " из " + GameScenario.game.tasksArray.size.toString() + " песен.")
                 reactions.say("Интернациональная команда надеется на ваше скорое возвращение.")
                 reactions.say("До свидания!\n")
-                reactions.telegram?.sendPhoto("https://meduza.io/image/attachments/images/005/634/857/large/7yf6EVsUAAsPGObrATeTHQ.jpg")
+                reactions.alice?.image("https://i.imgur.com/YOnWzLM.jpg")
                 reactions.alice?.endSession()
             }
         }
