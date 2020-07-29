@@ -22,7 +22,7 @@ object MainScenarioTest: Scenario(
 
             action {
                 reactions.say("Привет! Добро пожаловать в Норвежско-грузинский клуб русских песен!\n")
-                reactions.say("Собрались однажды русский, профессор лингвистики, норвежец и грузин русские песни петь. Каждый на свой лад.\n")
+                reactions.say("Собрались однажды русский, профессор лингвистики, норвежец и грузин русские песни петь да пересказывать. Каждый на свой лад.\n")
                 reactions.alice?.say(text="Вы - почетный гость на этом событии. И ваша задача - угадать исполнителя по некоторым строчкам, спетым на этом собрании.\n",
                             tts="Вы - почётный гость.. И ваша задача - угадать исполнителя по стр+очкам, спетым на этом собрании.")
                 reactions.say("Играем?")
@@ -69,10 +69,10 @@ object MainScenarioTest: Scenario(
             action {
                 if (context.client["score"] != null)
                     reactions.say("Вы отгадали " + context.client["score"].toString()
-                        + " из " + GameScenario.game.tasksArray.size.toString() + " песен.")
-                reactions.say("Интернациональная команда надеется на ваше скорое возвращение.")
+                        + " из " + GameScenario.game.tasksArray.size.toString() + " песен.\n\n")
+                reactions.say("Интернациональная команда надеется на ваше скорое возвращение.\n")
                 reactions.say("До свидания!\n")
-                reactions.alice?.image("https://i.imgur.com/YOnWzLM.jpg")
+                //reactions.alice?.image("https://i.imgur.com/YOnWzLM.jpg")
                 reactions.alice?.endSession()
             }
         }

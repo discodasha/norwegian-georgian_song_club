@@ -1,5 +1,6 @@
 package com.justai.jaicf.template.scenario
 
+import com.justai.jaicf.activator.caila.caila
 import com.justai.jaicf.channel.yandexalice.model.AliceEvent
 import com.justai.jaicf.channel.yandexalice.model.AliceIntent
 import com.justai.jaicf.context.BotContext
@@ -39,6 +40,8 @@ object GameScenario: Scenario() {
                         val hint = Hint(task)
                         context.client["stage"] = 0
                         context.client["hint"] = hint
+                        if (game.usedTasksIndexes.size > 1)
+                            reactions.sayRandom("Продолжим!", "Погнали дальше!", "Итак, новый вопрос!")
                         reactions.say(getQuestion(task))
                         reactions.go(ASK_STATE)
                     }
@@ -104,17 +107,38 @@ object GameScenario: Scenario() {
                 action {
                     addStage(context)
                     reactions.run {
-                        say(goOnString)
+                        sayRandom("Не то!", "Мимо, не то!", "Не а")
+                        if (!game.isEnd())
+                            say(goOnString)
                         go(ASK_STATE)
+                    }
+                }
+            }
+
+            state("/game/guess_singer"){
+                activators {
+                    intent("guess_singer")
+                }
+
+                action {
+                    val hint = context.client["hint"] as Hint
+                    val entity = activator.caila?.entities?.get(0)?.value
+                    if (hint.answer == entity) {
+                        addScore(context)
+                        reactions.say("Правильно! Если слушать оригинал, то там поётся:\n\"" + hint.original + "\"\n\n")
+                        reactions.go(INIT_STATE)
+                    }
+                    else {
+                        reactions.go(GO_ON_STATE)
                     }
                 }
             }
 
             fallback("f1") {
                 reactions.run {
-                    say("Я понимаю, что я нудная, но скажи ДА или НЕТ.")
+                    say("Эээ, непонятно. Переспрошу.")
                     buttons("Да", "Нет")
-                    go("/game/ask")
+                    reactions.go("/game/ask")
                 }
             }
         }

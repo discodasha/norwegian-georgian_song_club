@@ -36,6 +36,10 @@ class GameModel() {
     var usedTasksIndexes: ArrayList<Int> = ArrayList()
     var tasksArray: ArrayList<Task> = loadTasks()
 
+    fun isEnd(): Boolean {
+        return usedTasksIndexes.size == tasksArray.size
+    }
+
     fun getTask(): Task? {
 
         if (usedTasksIndexes.size == tasksArray.size) {
